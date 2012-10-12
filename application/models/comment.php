@@ -16,7 +16,7 @@ class Comment_Model extends Model {
 
 	const TABLE_NAME = 'comments'; /**< The name of the comment table */
 
-	
+
 	/**
 	 * Fetch saved comments for host or service
 	 *
@@ -38,7 +38,7 @@ class Comment_Model extends Model {
 		}
 		$ls = Livestatus::instance();
 		$lsb = $ls->getBackend();
-		
+
 		if( $service === false ) {
 			$filter = array( 'type' => 0, 'host_name' => $host );
 		} else {
@@ -65,7 +65,7 @@ class Comment_Model extends Model {
 					'limit'  => $num_per_page
 					) );
 		}
-		
+
 		return $result;
 	}
 
@@ -80,6 +80,7 @@ class Comment_Model extends Model {
 	 */
 	public static function fetch_comments_by_user($host, $for_services=false, $num_per_page=false, $offset=false, $count=false)
 	{
+throw new Exception("deprecated");
 		$num_per_page = (int)$num_per_page;
 		$offset = (int)$offset;
 
@@ -114,7 +115,7 @@ class Comment_Model extends Model {
 	 * @return DB result, or false on error or empty
 	 */
 	public static function fetch_all_comment_types($entry_type, $host_name, $service_description) {
-
+throw new Exception("deprecated");
 		$db = Database::instance();
 		switch ($entry_type) {
 			case 1: // user comment
@@ -181,7 +182,7 @@ class Comment_Model extends Model {
 					);
 			$name_column = 'host_name';
 		}
-		
+
 		$data = array();
 		foreach( $comments as $row ) {
 			$data[$row[$name_column]] = $row['count'];
@@ -189,7 +190,7 @@ class Comment_Model extends Model {
 		if( empty( $data ) ) {
 			return false;
 		}
-		
+
 		return $data;
 	}
 
@@ -198,6 +199,7 @@ class Comment_Model extends Model {
 	*/
 	public function search($value=false, $limit=false)
 	{
+throw new Exception("deprecated");
 		if (empty($value)) return false;
 		$db = Database::instance();
 		$auth = Nagios_auth_Model::instance();
@@ -263,6 +265,7 @@ class Comment_Model extends Model {
 	*/
 	public function get_where($field=false, $value=false, $limit=false)
 	{
+throw new Exception("deprecated");
 		if (empty($field) || empty($value)) {
 			return false;
 		}

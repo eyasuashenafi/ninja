@@ -80,15 +80,15 @@ class Extinfo_Controller extends Authenticated_Controller {
 		$this->template->js_strings = $this->js_strings;
 		$this->xtra_js[] = $this->add_path('extinfo/js/extinfo.js');
 		$this->template->js_header->js = $this->xtra_js;
-		
+
 		# save us some typing
 		$content = $this->template->content;
-		
+
 		if (count($result_data) === 0) {
 			return url::redirect('extinfo/unauthorized/'.$type);
 		}
 		$result = (object)$result_data[0];
-		
+
 		/* TODO: implement */
 		switch($type) {
 		/*
@@ -106,7 +106,7 @@ class Extinfo_Controller extends Authenticated_Controller {
 		$host_link = false;
 		$yes = _('YES');
 		$no = _('NO');
-		
+
 		$content->contactgroups = isset($result->contact_groups)?$result->contact_groups:false;
 		$is_pending = false;
 		$back_link = false;
@@ -730,7 +730,7 @@ class Extinfo_Controller extends Authenticated_Controller {
 			$this->template->content->error_message = _("Error: No group name specified");
 			return;
 		}
-		
+
 
 		$this->template->js_header = $this->add_view('js_header');
 		$this->template->css_header = $this->add_view('css_header');
@@ -742,11 +742,11 @@ class Extinfo_Controller extends Authenticated_Controller {
 		$this->template->title = _('Monitoring » Group detail');
 
 		$ls = Livestatus::instance();
-		
+
 		$group_info_res = $grouptype == 'servicegroup' ?
 			$ls->getServicegroups(array('filter' => array('name' => $group))) :
 			$ls->getHostgroups(array('filter' => array('name' => $group)));
-		
+
 		if ($group_info_res === false || count($group_info_res)==0) {
 			$this->template->content = $this->add_view('error');
 			$this->template->content->error_message = sprintf(_("The requested %s ('%s') wasn't found"), $grouptype, $group);
@@ -942,8 +942,14 @@ class Extinfo_Controller extends Authenticated_Controller {
 		);
 		$offset = $pagination->sql_offset;
 
-		$comment_data = $all ? Comment_Model::fetch_comments_by_user($service, $items_per_page, $offset) :Comment_Model::fetch_comments_by_object($host, $service, $items_per_page, $offset);
-		$schedule_downtime_comments = $all ? Downtime_Model::fetch_comments_by_user($service != false, $items_per_page, $offset) : Downtime_Model::fetch_comments_by_object($host, $service, $items_per_page, $offset);
+		$ls = Livestatus::instance();
+		if($all) {
+			$comment_data = $ls->getComments();
+			$schedule_downtime_comments = $ls->getDowntimes();
+		} else {
+			$comment_data = $ls->getComments(array('filter' => array('host_name' => $host, 'service_description' => $service)));
+			$schedule_downtime_comments = $ls->getDowntimes(array('filter' => array('host_name' => $host, 'service_description' => $service)));
+		}
 
 		$comment = false;
 		$i = 0;
@@ -957,9 +963,6 @@ class Extinfo_Controller extends Authenticated_Controller {
 
 		$comment_type = 'downtime';
 		foreach ($schedule_downtime_comments as $row) {
-//			if (empty($row->comment_data)) {
-//				continue;
-//			}
 			$comment[$i] = $row;
 			$comment[$i]['comment_type'] = $comment_type;
 			$i++;

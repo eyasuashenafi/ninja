@@ -72,36 +72,37 @@ if (!empty($command_result)) {
 				</td>
 				<td><?php echo $row['id'] ?></td>
 				<td><?php
-					if ($row['persistent'] === false) {
+					if (!isset($row['persistent']) || $row['persistent'] === false) {
 						echo _('N/A');
 					} else {
 						echo $row['persistent'] ? _('YES') : _('NO');
 					}
 					?></td>
 				<td style="white-space: normal">
-					<?php	switch ($row['entry_type']) {
-						case Comment_Model::USER_COMMENT:
-							$entry_type = _('User');
-							break;
-						case Comment_Model::DOWNTIME_COMMENT:
-							$entry_type = _('Scheduled downtime');
-							break;
-						case Comment_Model::FLAPPING_COMMENT:
-							$entry_type = _('Flap detection');
-							break;
-						case Comment_Model::ACKNOWLEDGEMENT_COMMENT:
-							$entry_type = _('Acknowledgement');
-							break;
-						default:
-							$entry_type =  '?';
-					}
-
+					<?php
 					if ($row['comment_type'] == 'downtime') {
 						$entry_type = _('Scheduled downtime').' ('._('User').')';
+					} else {
+						switch ($row['entry_type']) {
+							case Comment_Model::USER_COMMENT:
+								$entry_type = _('User');
+								break;
+							case Comment_Model::DOWNTIME_COMMENT:
+								$entry_type = _('Scheduled downtime');
+								break;
+							case Comment_Model::FLAPPING_COMMENT:
+								$entry_type = _('Flap detection');
+								break;
+							case Comment_Model::ACKNOWLEDGEMENT_COMMENT:
+								$entry_type = _('Acknowledgement');
+								break;
+							default:
+								$entry_type =  '?';
+						}
 					}
 					echo $entry_type; ?>
 				</td>
-				<td><?php echo $row['expires'] ? date($date_format_str, $row['expire_time']) : _('N/A') ?></td>
+				<td><?php echo (isset($row['expires']) && $row['expires']) ? date($date_format_str, $row['expire_time']) : _('N/A') ?></td>
 				<td class="icon">
 			<?php 	if ($row['comment_type'] == 'downtime') {
 						echo html::anchor('command/submit?cmd_typ='.$cmd_delete_downtime.'&downtime_id='.$row['id'],
